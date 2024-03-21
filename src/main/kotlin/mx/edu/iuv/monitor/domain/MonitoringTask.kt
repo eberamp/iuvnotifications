@@ -8,12 +8,12 @@ class MonitoringTask(
     private val teacherNotifier: TeacherNotifier
 ) {
 
-    @Scheduled(fixedRate = 3000)
+    @Scheduled(fixedRate = 5000)
     fun sendTeacherNotifications(){
 
         println("Test running every 3s")
 
-        // teacherNotifier.notifyAllTeachersCourseInactivity()
+        teacherNotifier.notifyAllTeachersCourseInactivity()
         // teacherNotifier.notifyAllPendingScoring()
 
     }

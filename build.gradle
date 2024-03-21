@@ -11,7 +11,8 @@ group = 'mx.edu.iuv'
 version = '0.0.1-SNAPSHOT'
 
 ext {
-	mockkVersion = "1.13.9"
+	mockkVersion = '1.13.9'
+	mysqlConnectorVersion = '8.0.28'
 }
 
 java {
@@ -24,12 +25,14 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	//implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
 	implementation 'io.projectreactor.kotlin:reactor-kotlin-extensions'
 	implementation 'org.jetbrains.kotlin:kotlin-reflect'
 	implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
-	//implementation 'mysql:mysql-connector-java:8.0.27'
+	implementation "mysql:mysql-connector-java:${mysqlConnectorVersion}"
+	implementation "org.springframework.boot:spring-boot-starter-mail"
+	implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
 	
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

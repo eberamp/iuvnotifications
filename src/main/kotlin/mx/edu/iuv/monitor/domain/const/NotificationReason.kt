@@ -1,0 +1,8 @@
+package mx.edu.iuv.monitor.domain.const
+
+enum class NotificationReason {
+    COURSE_INACTIVITY_24_HOURS,
+    COURSE_ACTIVITIES_PENDING_SUBMISSION,
+    COURSE_ACTIVITIES_PENDING_GRADING,
+    MISSING_COURSE_WELCOME_MESSAGE,
+}

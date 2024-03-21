@@ -39,22 +39,24 @@ class NotificationOrchestratorTest {
     @Test
     fun `should delegate notification via whatsApp when notification type is WhatsApp`() {
 
-        val notification: Notification = createNotificationOfType(NotificationType.EMAIL)
+        val notification: Notification = createNotificationOfType(NotificationType.WHATSAPP)
         val notificationResult = NotificationResult.Success("success", notification)
 
         every { notificationSender.notifyViaWhatsApp(any(Notification::class)) } returns notificationResult
 
         notificationOrchestrator.sendNotification(notification)
-        verify(exactly = 1) { notificationSender.notifyViaEmail(notification) }
+        verify(exactly = 1) { notificationSender.notifyViaWhatsApp(notification) }
 
     }
 
     private fun createNotificationOfType(notificationType: NotificationType): Notification {
         val recipient = IuvUser(
             id = 123,
+            firstName = "test name",
             email = "test@mail.com",
             phoneNumber = "541112222",
-            lastActive = Date()
+            lastAccess = Date(),
+            courses = listOf()
         )
 
         return Notification(

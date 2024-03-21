@@ -4,7 +4,9 @@ import java.util.Date
 
 data class IuvUser (
     val id: Long,
-    val email: String,
-    val phoneNumber: String,
-    val lastActive: Date
+    val firstName: String,
+    val email: String?,
+    val phoneNumber: String? = null,
+    val lastAccess: Date?,
+    val courses: List<UserCourse?>
 )

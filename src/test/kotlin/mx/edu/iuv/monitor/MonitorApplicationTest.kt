@@ -1,4 +1,4 @@
-package mx.edu.iuv.notificationservice
+package mx.edu.iuv.monitor
 
 import kotlin.test.Test
 import org.springframework.boot.test.context.SpringBootTest
@@ -6,9 +6,9 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest
 class MonitorApplicationTests {
 
-	@Test
-	fun contextLoads() {
+    @Test
+    fun contextLoads() {
 
-	}
+    }
 
 }

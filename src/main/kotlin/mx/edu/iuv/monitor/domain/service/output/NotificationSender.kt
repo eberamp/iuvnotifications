@@ -6,8 +6,8 @@ import mx.edu.iuv.monitor.domain.model.Notification
 interface NotificationSender {
 
     fun notifyViaEmail(notification: Notification): NotificationResult
-    fun notifyViaEmail(notification: List<Notification>): NotificationResult
+    fun notifyViaEmail(notifications: List<Notification>): NotificationResult
     fun notifyViaWhatsApp(notification: Notification): NotificationResult
-    fun notifyViaWhatsApp(notification: List<Notification>): NotificationResult
+    fun notifyViaWhatsApp(notifications: List<Notification>): NotificationResult
 
 }

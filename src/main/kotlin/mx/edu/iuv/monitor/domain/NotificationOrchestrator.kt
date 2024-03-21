@@ -4,6 +4,7 @@ package mx.edu.iuv.monitor.domain
 import mx.edu.iuv.monitor.domain.const.NotificationResult
 import mx.edu.iuv.monitor.domain.const.NotificationType
 import mx.edu.iuv.monitor.domain.exception.NotificationException
+import mx.edu.iuv.monitor.domain.exception.NotificationSenderException
 import mx.edu.iuv.monitor.domain.model.Notification
 import mx.edu.iuv.monitor.domain.service.output.NotificationSender
 import org.springframework.stereotype.Service
@@ -33,32 +34,33 @@ class NotificationOrchestrator (
         when (result) {
             is NotificationResult.Success -> {
                 // Record notification to custom database
+                println("Email sent successfully")
             }
             is NotificationResult.Failure -> {
-                throw NotificationException(result.errorMessage)
+                throw NotificationSenderException(result.errorMessage)
             }
         }
 
     }
 
     fun sendNotifications(notifications: List<Notification>){
+        // TODO: make functions suspended to enable asynchronicity
+        sendEmailNotifications(notifications)
+    }
 
+    private fun sendEmailNotifications(notifications: List<Notification>){
         val emailNotifications = notifications.filter { it.type == NotificationType.EMAIL }
 
         val result = notificationSender.notifyViaEmail(emailNotifications)
         when (result) {
             is NotificationResult.Success -> {
+                println(result.message)
                 // Record notification to custom database
             }
             is NotificationResult.Failure -> {
-                throw NotificationException(result.errorMessage)
+                throw NotificationSenderException(result.errorMessage)
             }
         }
-
-    }
-
-    companion object {
-        private const val DAYS_8 = 8L
     }
 
 }

@@ -4,6 +4,8 @@ import mx.edu.iuv.monitor.domain.model.IuvUser
 
 interface TeacherRepository {
 
-    fun getAllInactiveLast24Hours(): List<IuvUser>
+    fun getAllCourseInactiveLast24Hours(): List<IuvUser>
+    fun getAllCourseMissingWelcomeMessageLast24Hours(): List<IuvUser>
+    fun getAllCoursePendingScoring(): List<IuvUser>
 
 }

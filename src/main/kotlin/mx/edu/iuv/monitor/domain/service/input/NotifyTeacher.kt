@@ -8,7 +8,10 @@ interface NotifyTeacher {
     @Throws(NotificationException::class)
     fun notifyAllTeachersCourseInactivity()
 
+    @Throws(NotificationException::class)
     fun notifyAllPendingScoring()
+
+    @Throws(NotificationException::class)
     fun notifyAllReminderCourseWelcomingMessage()
 
 }
