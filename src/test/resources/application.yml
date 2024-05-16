@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    iuv:
+      url: jdbc:h2:mem:iuvtestdb
+      username: iuv-db-user-test
+      password: iuv-db-password-test
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    notification-log:
+      url: ${NOTIFICATION_LOG_MYSQL_URL}
+      username: ${NOTIFICATION_LOG_MYSQL_USERNAME}
+      password: ${NOTIFICATION_LOG_MYSQL_PASSWORD}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+      naming.physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  mail:
+    host: stmp-url-test
+    port: 43
+    username: test
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enabled: true
+  thymeleaf:
+    prefix: classpath:/html/template/
+    suffix: .html
+html-templates:
+  teacher:
+    course-inactive: "teacher_course_inactivity.html"
+    course-missing-welcome-message: "teacher_course_missing_welcome_message.html"
+    course-activities-pending-grading: "teacher_course_activities_pending_grading.html"
+  student:
+    course-inactive: ""
+    course-activities-pending-submission: ""
+  default: ""

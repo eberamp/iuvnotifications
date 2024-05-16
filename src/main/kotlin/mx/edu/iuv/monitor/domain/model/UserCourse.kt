@@ -6,6 +6,6 @@ data class UserCourse (
     val id: Long,
     val shortName: String = "",
     val url: String? = null,
-    val isUserActive: Boolean,
-    val lastActivityOn: Date
+    val isEnrolmentStatusActive: Boolean,
+    val lastAccessedOn: Date,
 )

@@ -5,15 +5,19 @@ import mx.edu.iuv.monitor.domain.const.NotificationReason
 import mx.edu.iuv.monitor.domain.const.NotificationResult
 import mx.edu.iuv.monitor.domain.model.Notification
 import mx.edu.iuv.monitor.domain.service.output.NotificationSender
+import mx.edu.iuv.monitor.infrastructure.output.database.const.HtmlEmailTemplate
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Service
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 
 @Service
+@EnableConfigurationProperties(HtmlEmailTemplate::class)
 class NotificationChannelHandler (
     private val mailSender: JavaMailSender,
-    private val templateEngine: TemplateEngine
+    private val templateEngine: TemplateEngine,
+    private val htmlEmailTemplate: HtmlEmailTemplate
 ) : NotificationSender {
 
     fun testNotifyViaEmail(notifications: List<Notification>): NotificationResult {
@@ -54,7 +58,11 @@ class NotificationChannelHandler (
     }
 
     override fun notifyViaEmail(notifications: List<Notification>): NotificationResult {
-        testNotifyViaEmail(notifications)
+
+        return NotificationResult.Success("Successful", notifications)
+
+
+        return testNotifyViaEmail(notifications)
 
         val failedSendNotifications: MutableList<Notification> = mutableListOf()
         val message = mailSender.createMimeMessage()
@@ -102,20 +110,19 @@ class NotificationChannelHandler (
     }
 
     private fun getPersonalizedEmailTemplateForContext(context: Context, reason: NotificationReason): String {
+        // TODO: add userRole or userType to IuvUser definition to distinguish between them
         return when(reason){
-            NotificationReason.COURSE_INACTIVITY_24_HOURS -> templateEngine.process(HTML_TEMPLATE_COURSE_INACTIVE, context)
-            NotificationReason.PENDING_SCORING -> templateEngine.process(HTML_TEMPLATE_COURSE_PENDING_SCORING, context)
-            NotificationReason.MISSING_COURSE_WELCOME_MESSAGE -> templateEngine.process(
-                HTML_TEMPLATE_COURSE_MISSING_WELCOME_MESSAGE, context)
-            else -> templateEngine.process(HTML_TEMPLATE_DEFAULT, context)
+            NotificationReason.COURSE_INACTIVITY_24_HOURS ->
+                templateEngine.process(htmlEmailTemplate.teacher.courseInactive, context)
+            NotificationReason.COURSE_ACTIVITIES_PENDING_GRADING ->
+                templateEngine.process(htmlEmailTemplate.teacher.courseActivitiesPendingGrading, context)
+            NotificationReason.MISSING_COURSE_WELCOME_MESSAGE ->
+                templateEngine.process(htmlEmailTemplate.teacher.courseMissingWelcomeMessage, context)
+            else -> templateEngine.process(htmlEmailTemplate.default, context)
         }
     }
 
     companion object {
-        const val HTML_TEMPLATE_COURSE_INACTIVE = "teacher_course_inactivity.html"
-        const val HTML_TEMPLATE_COURSE_MISSING_WELCOME_MESSAGE = "teacher_course_inactivity.html"
-        const val HTML_TEMPLATE_COURSE_PENDING_SCORING = "teacher_course_inactivity.html"
-        const val HTML_TEMPLATE_DEFAULT = ""
         const val USER_NAME_PLACEHOLDER = "user_name"
         const val COURSE_NAME_PLACEHOLDER = "course_name"
         const val BODY_MESSAGE_PLACEHOLDER = "body_message"

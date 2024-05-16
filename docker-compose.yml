@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  notificationlogger:
+    image: mongo
+    container_name: notificationlogger
+    ports:
+      - "27017:27017"
+    expose:
+      - 27017
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - notificationservicenetwork
+
+  monitor:
+    image: notificationservice
+    container_name: monitor
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - notificationlogger
+    ports:
+      - "8080:8080"
+    tty: true
+    volumes:
+      - monitor_logs:/app
+    environment:
+      MONGODB_URI: mongodb://notificationlogger:27017/iuv
+    networks:
+      - notificationservicenetwork
+
+networks:
+  notificationservicenetwork:
+
+volumes:
+  mongodb_data:
+  monitor_logs:
