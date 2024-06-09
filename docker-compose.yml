@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  notificationlogger:
+    image: mongo:latest
+    container_name: notificationlogger
+    ports:
+      - "27017:27017"
+    expose:
+      - 27017
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - notificationservicenetwork
+
+  monitor:
+    image: notificationservice:latest
+    container_name: monitor
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MYSQL_URL: ${MYSQL_URL}
+        MYSQL_USER: ${MYSQL_USER}
+        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        SMTP_HOST: ${SMTP_HOST}
+        SMTP_USERNAME: ${SMTP_USERNAME}
+        SMTP_PASSWORD: ${SMTP_PASSWORD}
+        SMTP_PORT: ${SMTP_PORT}
+    depends_on:
+      - notificationlogger
+    ports:
+      - "3000:8080"
+    tty: true
+    volumes:
+      - monitor_logs:/app/logs
+    environment:
+      MONGODB_URI: mongodb://notificationlogger:27017/iuv
+    networks:
+      - notificationservicenetwork
+
+networks:
+  notificationservicenetwork:
+
+volumes:
+  mongodb_data:
+  monitor_logs:

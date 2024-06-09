@@ -1,0 +1,28 @@
+FROM amazoncorretto:17-al2023-headless
+
+ARG MYSQL_URL
+ARG MYSQL_USER
+ARG MYSQL_PASSWORD
+
+ENV IUV_MYSQL_URL=${MYSQL_URL}
+ENV IUV_MYSQL_USERNAME=${MYSQL_USER}
+ENV IUV_MYSQL_PASSWORD=${MYSQL_PASSWORD}
+
+ARG SMTP_HOST
+ARG SMTP_USERNAME
+ARG SMTP_PASSWORD
+ARG SMTP_PORT
+
+ENV MAIL_SERVER_HOST=${SMTP_HOST}
+ENV MAIL_SERVER_USERNAME=${SMTP_USERNAME}
+ENV MAIL_SERVER_PASSWORD=${SMTP_PASSWORD}
+ENV MAIL_SERVER_PORT=${SMTP_PORT}
+
+WORKDIR /app
+
+COPY build/resources/main/application.yml /app/application.yml
+COPY build/libs/notificationservice-1.0.jar /app/notificationservice.jar
+
+CMD ["java", "-jar", "/app/notificationservice.jar"]
+
+EXPOSE 8080

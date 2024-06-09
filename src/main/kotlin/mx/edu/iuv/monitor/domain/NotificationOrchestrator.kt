@@ -3,9 +3,9 @@ package mx.edu.iuv.monitor.domain
 
 import mx.edu.iuv.monitor.domain.const.NotificationResult
 import mx.edu.iuv.monitor.domain.const.NotificationType
-import mx.edu.iuv.monitor.domain.exception.NotificationException
 import mx.edu.iuv.monitor.domain.exception.NotificationSenderException
 import mx.edu.iuv.monitor.domain.model.Notification
+import mx.edu.iuv.monitor.domain.service.output.NotificationRepository
 import mx.edu.iuv.monitor.domain.service.output.NotificationSender
 import org.springframework.stereotype.Service
 
@@ -19,7 +19,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class NotificationOrchestrator (
-    private val notificationSender: NotificationSender
+    private val notificationSender: NotificationSender,
+    private val notificationRepository: NotificationRepository
 ) {
 
     fun sendNotification(notification: Notification){
@@ -34,7 +35,13 @@ class NotificationOrchestrator (
         when (result) {
             is NotificationResult.Success -> {
                 // Record notification to custom database
-                println("Email sent successfully")
+                println(result.message)
+
+                result.notifications.firstOrNull()?.also {
+                    notificationRepository.saveNotification(it)
+                    println("recorded notification successfully")
+                } ?: println("this should be logged but result success without notification?")
+
             }
             is NotificationResult.Failure -> {
                 throw NotificationSenderException(result.errorMessage)
@@ -44,6 +51,7 @@ class NotificationOrchestrator (
     }
 
     fun sendNotifications(notifications: List<Notification>){
+        if(notifications.isEmpty()) return
         // TODO: make functions suspended to enable asynchronicity
         sendEmailNotifications(notifications)
     }
@@ -54,13 +62,16 @@ class NotificationOrchestrator (
         val result = notificationSender.notifyViaEmail(emailNotifications)
         when (result) {
             is NotificationResult.Success -> {
-                println(result.message)
-                // Record notification to custom database
+                result.notifications.takeIf{ it.isNotEmpty() }?.also {
+                    notificationRepository.saveAllNotifications(it)
+                    println("recorded notifications successfully hell yeah")
+                } ?: println("this should be logged but result success without notification?")
             }
             is NotificationResult.Failure -> {
                 throw NotificationSenderException(result.errorMessage)
             }
         }
+
     }
 
 }

@@ -6,6 +6,6 @@ interface TeacherRepository {
 
     fun getAllCourseInactiveLast24Hours(): List<IuvUser>
     fun getAllCourseMissingWelcomeMessageLast24Hours(): List<IuvUser>
-    fun getAllCoursePendingScoring(): List<IuvUser>
+    fun getAllCourseActivitiesPendingGrading(): List<IuvUser>
 
 }

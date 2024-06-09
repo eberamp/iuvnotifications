@@ -1,19 +1,24 @@
 package mx.edu.iuv.monitor.infrastructure.output.messaging
 
+import jakarta.mail.Address
 import jakarta.mail.internet.MimeMessage
 import mx.edu.iuv.monitor.domain.const.NotificationReason
 import mx.edu.iuv.monitor.domain.const.NotificationResult
 import mx.edu.iuv.monitor.domain.model.Notification
 import mx.edu.iuv.monitor.domain.service.output.NotificationSender
+import mx.edu.iuv.monitor.infrastructure.output.database.const.HtmlEmailTemplate
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Service
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 
 @Service
+@EnableConfigurationProperties(HtmlEmailTemplate::class)
 class NotificationChannelHandler (
     private val mailSender: JavaMailSender,
-    private val templateEngine: TemplateEngine
+    private val templateEngine: TemplateEngine,
+    private val htmlEmailTemplate: HtmlEmailTemplate
 ) : NotificationSender {
 
     fun testNotifyViaEmail(notifications: List<Notification>): NotificationResult {
@@ -22,13 +27,16 @@ class NotificationChannelHandler (
         try {
 
             val message = mailSender.createMimeMessage()
-            message.setFrom("emailtest@eberamp.com")
+            message.setFrom("coordinacion_tecnicopedagogica@iuv.edu.mx")
+
             message.setRecipients(MimeMessage.RecipientType.TO, "eamp143112@gmail.com")
-            message.subject = "Test email from my Springapplication";
+            message.setRecipients(MimeMessage.RecipientType.CC, "coordinacion_tecnicopedagogica@iuv.edu.mx")
+
+            message.subject = "Test email from my Springapplication"
 
             val context = Context()
             context.setVariable(USER_NAME_PLACEHOLDER, notifications.first().recipient.firstName)
-            context.setVariable(COURSE_NAME_PLACEHOLDER, notifications.first().message)
+            context.setVariable(COURSE_NAME_PLACEHOLDER, notifications.first().recipient.courses.first()?.shortName)
             val bodyHtmlMessage = getPersonalizedEmailTemplateForContext(context, notifications.first().reason)
 
             message.setContent(bodyHtmlMessage, "text/html; charset=utf-8");
@@ -37,8 +45,7 @@ class NotificationChannelHandler (
 
         } catch (e: Exception){
             println(e)
-            return NotificationResult.Failure("Failed", notifications)
-
+            return NotificationResult.Failure("Mail Service Failed", notifications)
         }
 
         return NotificationResult.Success("Notification Test Successful", notifications)
@@ -54,11 +61,13 @@ class NotificationChannelHandler (
     }
 
     override fun notifyViaEmail(notifications: List<Notification>): NotificationResult {
-        testNotifyViaEmail(notifications)
+
+        return testNotifyViaEmail(notifications)
 
         val failedSendNotifications: MutableList<Notification> = mutableListOf()
         val message = mailSender.createMimeMessage()
-        message.setFrom("emailtest@eberamp.com")
+        message.setFrom("coordinacion_tecnicopedagogica@iuv.edu.mx")
+        message.setRecipients(MimeMessage.RecipientType.CC, "coordinacion_tecnicopedagogica@iuv.edu.mx")
 
         notifications.forEach { notification ->
             message.setRecipients(MimeMessage.RecipientType.TO, notification.recipient.email)
@@ -102,20 +111,19 @@ class NotificationChannelHandler (
     }
 
     private fun getPersonalizedEmailTemplateForContext(context: Context, reason: NotificationReason): String {
+        // TODO: add userRole or userType to IuvUser definition to distinguish between them
         return when(reason){
-            NotificationReason.COURSE_INACTIVITY_24_HOURS -> templateEngine.process(HTML_TEMPLATE_COURSE_INACTIVE, context)
-            NotificationReason.PENDING_SCORING -> templateEngine.process(HTML_TEMPLATE_COURSE_PENDING_SCORING, context)
-            NotificationReason.MISSING_COURSE_WELCOME_MESSAGE -> templateEngine.process(
-                HTML_TEMPLATE_COURSE_MISSING_WELCOME_MESSAGE, context)
-            else -> templateEngine.process(HTML_TEMPLATE_DEFAULT, context)
+            NotificationReason.COURSE_INACTIVITY_24_HOURS ->
+                templateEngine.process(htmlEmailTemplate.teacher.courseInactive, context)
+            NotificationReason.COURSE_ACTIVITIES_PENDING_GRADING ->
+                templateEngine.process(htmlEmailTemplate.teacher.courseActivitiesPendingGrading, context)
+            NotificationReason.COURSE_MISSING_WELCOME_MESSAGE ->
+                templateEngine.process(htmlEmailTemplate.teacher.courseMissingWelcomeMessage, context)
+            else -> templateEngine.process(htmlEmailTemplate.default, context)
         }
     }
 
     companion object {
-        const val HTML_TEMPLATE_COURSE_INACTIVE = "teacher_course_inactivity.html"
-        const val HTML_TEMPLATE_COURSE_MISSING_WELCOME_MESSAGE = "teacher_course_inactivity.html"
-        const val HTML_TEMPLATE_COURSE_PENDING_SCORING = "teacher_course_inactivity.html"
-        const val HTML_TEMPLATE_DEFAULT = ""
         const val USER_NAME_PLACEHOLDER = "user_name"
         const val COURSE_NAME_PLACEHOLDER = "course_name"
         const val BODY_MESSAGE_PLACEHOLDER = "body_message"

@@ -9,9 +9,9 @@ interface NotifyTeacher {
     fun notifyAllTeachersCourseInactivity()
 
     @Throws(NotificationException::class)
-    fun notifyAllPendingScoring()
+    fun notifyAllTeachersActivitiesPendingGrading()
 
     @Throws(NotificationException::class)
-    fun notifyAllReminderCourseWelcomingMessage()
+    fun notifyAllTeachersReminderCourseWelcomingMessage()
 
 }

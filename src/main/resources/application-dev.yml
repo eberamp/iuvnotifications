@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      host: host.docker.internal
+      host: localhost
       database: iuv
       port: 27017
   datasource:
@@ -30,9 +30,6 @@ spring:
           auth: true
           starttls:
             enabled: true
-          timeout: 30000
-          connectiontimeout: 50000
-          writetimeout: 50000
   thymeleaf:
     prefix: classpath:/email/template/
     suffix: .html
