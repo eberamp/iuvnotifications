@@ -7,7 +7,6 @@ import mx.edu.iuv.monitor.domain.exception.NotificationSenderException
 import mx.edu.iuv.monitor.domain.exception.RepositoryException
 import mx.edu.iuv.monitor.domain.model.Notification
 import mx.edu.iuv.monitor.domain.service.input.NotifyTeacher
-import mx.edu.iuv.monitor.domain.service.output.NotificationRepository
 import mx.edu.iuv.monitor.domain.service.output.TeacherRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -33,7 +32,7 @@ class TeacherNotifier (
             // val alreadyNotified = notificationRepository.getAllNotifiedTeachersLast24Hours()
             // TODO: maybe check user notification preferences or system flags for notification type
 
-            println(inactiveTeachers.firstOrNull())
+            //println(inactiveTeachers)
 
             // TODO: maybe use a List<Pair<Key, Value>> for the message and refactor to messageValues
             val notifications = inactiveTeachers.map { user ->
@@ -59,7 +58,7 @@ class TeacherNotifier (
         }
     }
 
-    override fun notifyAllReminderCourseWelcomingMessage() {
+    override fun notifyAllTeachersReminderCourseWelcomingMessage() {
         try {
             val teacherMissingWelcomeMessage = teacherRepository.getAllCourseMissingWelcomeMessageLast24Hours()
             // val alreadyNotified = notificationRepository.getAllNotifiedTeachersLast24Hours()
@@ -72,7 +71,7 @@ class TeacherNotifier (
             val notifications = teacherMissingWelcomeMessage.map { user ->
                 Notification(
                     type = NotificationType.EMAIL,
-                    reason = NotificationReason.MISSING_COURSE_WELCOME_MESSAGE,
+                    reason = NotificationReason.COURSE_MISSING_WELCOME_MESSAGE,
                     recipient = user,
                     message = "",
                     from = designatedTeacherCoordinatorEmail,
@@ -92,14 +91,13 @@ class TeacherNotifier (
         }
     }
 
-    override fun notifyAllPendingScoring(){
+    override fun notifyAllTeachersActivitiesPendingGrading(){
         try {
             val teachersWithActivitiesPendingGrading = teacherRepository.getAllCourseActivitiesPendingGrading()
             // val alreadyNotified = notificationRepository.getAllNotifiedTeachersLast24Hours()
             // TODO: maybe check user notification preferences or system flags for notification type
 
             println(teachersWithActivitiesPendingGrading.firstOrNull())
-
 
             // TODO: maybe use a List<Pair<Key, Value>> for the message and refactor to messageValues
             val notifications = teachersWithActivitiesPendingGrading.map { user ->

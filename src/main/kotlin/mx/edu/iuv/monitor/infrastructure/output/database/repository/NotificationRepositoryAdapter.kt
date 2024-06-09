@@ -28,6 +28,7 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.stereotype.Repository
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -36,7 +37,7 @@ import java.time.ZonedDateTime
 import java.util.*
 
 @Repository
-class NotificationRepositoryAdapter(
+class NotificationRepositoryAdapter (
     private val mongoNotificationLogRepository: MongoNotificationLogRepository,
     private val mongoTemplate: MongoTemplate
 ) : NotificationRepository {
@@ -45,11 +46,27 @@ class NotificationRepositoryAdapter(
         return mongoNotificationLogRepository.findById(id)
     }
 
+    override fun findAll(): List<NotificationLog> {
+        TODO("Not yet implemented")
+    }
+
+    override fun findAllWeeksAgo(weeksAgo: Int): List<NotificationLog> {
+        // TODO use weeksAgo
+        val startDate = Date.from(LocalDate.now().minusWeeks(1).atStartOfDay().toInstant(ZoneOffset.UTC))
+
+        return mongoTemplate.find(
+            Query.query(Criteria.where("dateSent").gte(startDate)),
+            NotificationLog::class.java
+        )
+
+    }
+
     override fun findByUserId(id: String): List<NotificationLog> {
         return mongoTemplate.query(NotificationLog::class.java)
             .matching(Query.query(Criteria.where("user._id").isEqualTo(id))).all()
     }
 
+    // TODO: create findByNotificationType
     override fun findByNotificationType(type: NotificationType): List<NotificationLog> {
         return mongoTemplate.query(NotificationLog::class.java)
             .matching(Query.query(Criteria.where("type").isEqualTo(type.name))).all()
@@ -92,21 +109,27 @@ class NotificationRepositoryAdapter(
         return mappedResults.firstNotNullOf { Pair(NotificationReason.valueOf(it.reason), it.count) }
     }
 
-    override fun getNotificationsSentLast24Hours(): List<NotificationLog> {
-        val date24HoursAgo = Date.from(LocalDateTime.now().minusHours(24).toInstant(ZoneOffset.UTC))
+    override fun findAllSentLast24Hours(): List<NotificationLog> {
+        val date24HoursAgo = getLocalDateTimeUtc().minusHours(24).toInstant(ZoneOffset.UTC)
         return mongoTemplate.query(NotificationLog::class.java)
             .matching(Query.query(Criteria.where("dateSent").gte(date24HoursAgo))).all()
     }
 
-    override fun getNotificationsSentInTheLastHours(hours: Long): List<NotificationLog> {
-        val hoursAgo = Date.from(LocalDateTime.now().minusHours(hours).toInstant(ZoneOffset.UTC))
+    override fun findAllSentHoursAgo(hours: Long): List<NotificationLog> {
+        val hoursAgo = getLocalDateTimeUtc().minusHours(hours).toInstant(ZoneOffset.UTC)
         return mongoTemplate.query(NotificationLog::class.java)
             .matching(Query.query(Criteria.where("dateSent").gte(hoursAgo))).all()
     }
 
-    override fun getNotificationsSentOn(date: LocalDate, strict: Boolean): List<NotificationLog> {
-        val startDate = Date.from(date.atStartOfDay().toInstant(ZoneOffset.UTC))
-        val endDate = Date.from(date.atStartOfDay().plusDays(1).toInstant(ZoneOffset.UTC))
+    override fun findAllSentDaysAgo(days: Long): List<NotificationLog> {
+        val date24HoursAgo = getLocalDateTimeUtc().minusDays(days).toInstant(ZoneOffset.UTC)
+        return mongoTemplate.query(NotificationLog::class.java)
+            .matching(Query.query(Criteria.where("dateSent").gte(date24HoursAgo))).all()
+    }
+
+    override fun findAllSentOn(date: LocalDate, strict: Boolean): List<NotificationLog> {
+        val startDate = date.atStartOfDay().toInstant(ZoneOffset.UTC)
+        val endDate = date.atStartOfDay().plusDays(1).toInstant(ZoneOffset.UTC)
 
         return mongoTemplate.find(
             Query.query(Criteria.where("dateSent").gte(startDate).lt(endDate)),
@@ -204,6 +227,7 @@ class NotificationRepositoryAdapter(
             notification.recipient.let { user ->
                 // We assume only one course for now no need to do a mapping or each course
                 val course = user.courses.firstOrNull()
+                val activity = user.activities.firstOrNull()
                 course?.run {
                     NotificationLog(
                         type = notification.type,
@@ -215,7 +239,9 @@ class NotificationRepositoryAdapter(
                             courseId = course.id.toString(),
                             courseName = course.shortName,
                             lastPlatformAccess = user.lastPlatformAccess,
-                            lastCourseAccess = course.lastAccessedOn
+                            lastCourseAccess = course.lastAccessedOn,
+                            activityItemId = activity?.itemId?.toString().orEmpty(),
+                            activityItemName = activity?.itemName.orEmpty()
                         ),
                         dateSent = Date()
                     )
@@ -231,6 +257,41 @@ class NotificationRepositoryAdapter(
         }
 
     }
+
+//    override fun saveAllNotifications(notifications: List<Notification>){
+//        val notificationsToRecord = notifications.mapNotNull { notification ->
+//            notification.recipient.let { user ->
+//                // We assume only one course for now no need to do a mapping or each course
+//                val course = user.courses.firstOrNull()
+//                course?.run {
+//                    NotificationLog(
+//                        type = notification.type,
+//                        reason = notification.reason,
+//                        user = UserLog(
+//                            id = user.id.toString(),
+//                            firstname = user.firstName,
+//                            userRole = user.userRole,
+//                            courseId = course.id.toString(),
+//                            courseName = course.shortName,
+//                            lastPlatformAccess = user.lastPlatformAccess,
+//                            lastCourseAccess = course.lastAccessedOn
+//                        ),
+//                        dateSent = Date()
+//                    )
+//                }
+//            }
+//        }
+//
+//        try {
+//            mongoNotificationLogRepository.saveAll(notificationsToRecord)
+//        } catch (e: Exception){
+//            // log exception
+//            throw Exception("Error while saving notifications", e)
+//        }
+//
+//    }
+
+    private fun getLocalDateTimeUtc(): LocalDateTime = ZonedDateTime.now().withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime()
 
 
     companion object {

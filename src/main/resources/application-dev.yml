@@ -6,7 +6,7 @@ spring:
       port: 27017
   datasource:
     iuv:
-      url: jdbc:mysql://localhost:3306/iuvmoodle
+      url: ${IUV_MYSQL_URL}
       username: ${IUV_MYSQL_USERNAME}
       password: ${IUV_MYSQL_PASSWORD}
       driver-class-name: com.mysql.cj.jdbc.Driver

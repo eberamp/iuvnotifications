@@ -1,5 +1,6 @@
 package mx.edu.iuv.monitor.infrastructure.input.web.controller
 
+import mx.edu.iuv.monitor.domain.const.ReportType
 import mx.edu.iuv.monitor.domain.service.output.NotificationReporter
 import mx.edu.iuv.monitor.domain.service.output.NotificationRepository
 import mx.edu.iuv.monitor.infrastructure.output.database.entity.NotificationLog
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
+import java.util.*
 
 @RestController
 @RequestMapping("/monitor/api")
@@ -24,7 +26,11 @@ class MonitorController (
 ) {
 
     @GetMapping("/report/csv")
-    fun generateCSVReport(): ResponseEntity<ByteArray> {
+    suspend fun generateCSVReport(): ResponseEntity<ByteArray> {
+
+        // TODO: Fix me
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null)
+
         val byteArray = notificationReporter.createReportLast24Hours()
         if(byteArray.isEmpty()){
             return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -37,7 +43,7 @@ class MonitorController (
     }
 
     @GetMapping("/report/xls")
-    fun generateXLSReport(): ResponseEntity<ByteArray> {
+    suspend fun generateXLSReport(): ResponseEntity<ByteArray> {
         val byteArray = notificationReporter.createReportLast24Hours()
         if(byteArray.isEmpty()){
             return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -49,15 +55,42 @@ class MonitorController (
         return ResponseEntity(byteArray, headers, HttpStatus.OK)
     }
 
+    @GetMapping("/report/xls/generate")
+    suspend fun generateXLSReport(
+        @RequestParam("reportType") type: String?,
+        @RequestParam("fromDaysAgo", required = false) daysAgo: Long = 1
+    ): ResponseEntity<ByteArray> {
+
+        val reportType = type?.let { ReportType from it } ?: ReportType.TEACHER_ALL
+        val byteArray = notificationReporter.createReportFromDaysAgo(reportType, daysAgo)
+        if(byteArray.isEmpty()){
+            return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+
+        val headers = HttpHeaders()
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=${getReportName(reportType)}")
+
+        return ResponseEntity(byteArray, headers, HttpStatus.OK)
+    }
+
+    @GetMapping("/notifications")
+    fun getAllNotifications(
+        @RequestParam("fromDaysAgo", required = false) daysAgo: Long = 1
+    ): ResponseEntity<List<NotificationLog>> {
+
+        val notifications = notificationRepository.findAllSentDaysAgo(daysAgo)
+        return if (notifications.isEmpty()){
+            ResponseEntity(HttpStatus.NOT_FOUND)
+        } else {
+            ResponseEntity(notifications, HttpStatus.OK)
+        }
+    }
+
     @GetMapping("/notifications/{id}")
     fun getNotificationById(@PathVariable("id") notificationId: String): ResponseEntity<NotificationLog> {
 
         val notification = notificationRepository.findById(notificationId)
-        return if (notification.isPresent){
-            ResponseEntity(notification.get(), HttpStatus.OK)
-        } else {
-            ResponseEntity(HttpStatus.NOT_FOUND)
-        }
+        return ResponseEntity.of(notification)
 
     }
 
@@ -78,13 +111,17 @@ class MonitorController (
         @RequestParam("dateSent") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) dateSent: LocalDate
     ): ResponseEntity<List<NotificationLog>> {
 
-        val userNotifications = notificationRepository.getNotificationsSentOn(dateSent)
+        val userNotifications = notificationRepository.findAllSentOn(dateSent)
         return if (userNotifications.isNotEmpty()){
             ResponseEntity(userNotifications, HttpStatus.OK)
         } else {
-            ResponseEntity(null, HttpStatus.NOT_FOUND)
+            ResponseEntity(HttpStatus.NOT_FOUND)
         }
 
+    }
+
+    private fun getReportName(type: ReportType): String {
+        return "report_${type.name.lowercase()}_${Date().toInstant().epochSecond}.xls"
     }
 
     companion object {

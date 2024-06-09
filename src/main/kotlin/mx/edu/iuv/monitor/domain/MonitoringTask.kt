@@ -8,16 +8,15 @@ class MonitoringTask(
     private val teacherNotifier: TeacherNotifier
 ) {
 
-    @Scheduled(fixedRate = 60 * 1000 * 10)
+    @Scheduled(cron = "0 0 9,21 * * *", zone = "CST")
+    //@Scheduled(cron = "0 0/1 * * * *", zone = "CST")
     fun sendTeacherNotifications(){
 
         println("Notifying teachers...")
-
-        //teacherNotifier.notifyAllTeachersCourseInactivity()
-        //teacherNotifier.notifyAllReminderCourseWelcomingMessage()
-        //teacherNotifier.notifyAllPendingScoring()
+        teacherNotifier.notifyAllTeachersCourseInactivity()
+        teacherNotifier.notifyAllTeachersReminderCourseWelcomingMessage()
+        teacherNotifier.notifyAllTeachersActivitiesPendingGrading()
 
     }
-
 
 }

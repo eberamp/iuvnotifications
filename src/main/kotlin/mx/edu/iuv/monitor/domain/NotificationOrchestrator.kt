@@ -51,6 +51,7 @@ class NotificationOrchestrator (
     }
 
     fun sendNotifications(notifications: List<Notification>){
+        if(notifications.isEmpty()) return
         // TODO: make functions suspended to enable asynchronicity
         sendEmailNotifications(notifications)
     }

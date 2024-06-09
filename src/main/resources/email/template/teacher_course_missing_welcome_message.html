@@ -120,8 +120,8 @@
                                 Es un gusto saludarle.
                             </p>
                             <p>
-                                Hemos notado que no publicado su mensaje de bienvenida a su curso <span th:text="${course_name}"></span>
-                                Es importante recibir a sus alumnos al curso con un mensaje de bienvenida.
+                                Hemos notado que no ha publicado su mensaje de bienvenida a su curso <span th:text="${course_name}"></span>.
+                                Es importante recibir a sus alumnos con un mensaje de bienvenida.
                             </p>
 
                             <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary"
@@ -133,7 +133,7 @@
                                             <tbody>
                                             <tr>
                                                 <td style="font-family: Helvetica, sans-serif; font-size: 16px; vertical-align: top; border-radius: 4px; text-align: center; background-color: #0867ec;" valign="top" align="center" bgcolor="#0867ec">
-                                                    <a href="https://sige.iuv.edu.mx" target="_blank" style="border: solid 2px #0867ec; border-radius: 4px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 16px; font-weight: bold; margin: 0; padding: 12px 24px; text-decoration: none; text-transform: capitalize; background-color: #0867ec; border-color: #0867ec; color: #ffffff;">
+                                                    <a href="https://miscursos.iuv.edu.mx/" target="_blank" style="border: solid 2px #0867ec; border-radius: 4px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 16px; font-weight: bold; margin: 0; padding: 12px 24px; text-decoration: none; text-transform: capitalize; background-color: #0867ec; border-color: #0867ec; color: #ffffff;">
                                                         Ingresar al portal
                                                     </a>
                                                 </td>
@@ -153,17 +153,18 @@
                                 <tbody>
                                 <tr>
                                     <td align="center" style="vertical-align: top; padding-bottom: 10px;" valign="top">
-                                        <img src="../../leiny.png">
+                                        <img src="https://i.ibb.co/0Q9RVnR/leiny-reduced.jpg" style="border-radius: 50%;" width="35%">
                                     </td>
                                 </tr>
                                 <tr>
                                     <td align="center" style="font-family: Helvetica, sans-serif; font-size: 16px; padding-bottom: 5px;" valign="top">
                                         <p style="margin: 0;">Leiny Borgwardt</p>
                                         Coordinadora Técnico Pedagógica
+
                                         <p>
-                                            <a style="color: #021766; text-decoration: none;" th:href="@{https://api.whatsapp.com/send?phone=522281561433&text=Hola mi nombre es ${user_name} te escribo por el curso ${course_name} mi matrícula es ">
-                                                <img src="../../whatsapp_logo.png" alt="" width="15px">
-                                                52 228 1561 433
+                                            <a style="color: #021766; text-decoration: none;" th:href="@{'https://api.whatsapp.com/send?phone=522288458029&amp;text=Hola, soy ' + ${user_name} + ' te escribo por el curso ' + ${course_name}}">
+                                                <img align="bottom" src="https://i.ibb.co/JR5BfVR/whatsapp-logo.png" alt="whatsapp-logo" width="17px" />
+                                                +52 228 845 8029
                                             </a>
                                         </p>
                                     </td>
@@ -178,6 +179,7 @@
                     <!-- END MAIN CONTENT AREA -->
                 </table>
                 <!-- END CENTERED WHITE CONTAINER --></div>
+            <p></p>
         </td>
         <td style="font-family: Helvetica, sans-serif; font-size: 16px; vertical-align: top;" valign="top">&nbsp;</td>
     </tr>

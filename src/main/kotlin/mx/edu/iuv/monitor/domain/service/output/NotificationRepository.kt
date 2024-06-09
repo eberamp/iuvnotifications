@@ -12,6 +12,13 @@ interface NotificationRepository {
 
     fun findById(id: String): Optional<NotificationLog>
     fun findByUserId(id: String): List<NotificationLog>
+    fun findAll(): List<NotificationLog>
+
+    fun findAllWeeksAgo(weeksAgo: Int): List<NotificationLog>
+    fun findAllSentLast24Hours(): List<NotificationLog>
+    fun findAllSentHoursAgo(hours: Long): List<NotificationLog>
+    fun findAllSentDaysAgo(days: Long): List<NotificationLog>
+    fun findAllSentOn(date: LocalDate, strict: Boolean = false): List<NotificationLog>
 
     fun findByNotificationType(type: NotificationType): List<NotificationLog>
     fun findByNotificationReason(reason: NotificationReason): List<NotificationLog>
@@ -20,10 +27,6 @@ interface NotificationRepository {
     fun getReasonCount(reason: NotificationReason): Long
     fun getAllReasonsCount(): List<Pair<NotificationReason, Long>>
     fun getMostNotifiedReason(): Pair<NotificationReason, Long>
-
-    fun getNotificationsSentLast24Hours(): List<NotificationLog>
-    fun getNotificationsSentInTheLastHours(hours: Long): List<NotificationLog>
-    fun getNotificationsSentOn(date: LocalDate, strict: Boolean = false): List<NotificationLog>
 
     fun getUserIdMostNotified(): String
     fun getUserIdWithMostNotifiedReason(): Pair<String, NotificationReason>

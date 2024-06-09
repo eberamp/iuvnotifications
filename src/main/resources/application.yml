@@ -1,7 +1,9 @@
 spring:
   data:
     mongodb:
-      uri: ${MONGODB_URI}
+      host: host.docker.internal
+      database: iuv
+      port: 27017
   datasource:
     iuv:
       url: ${IUV_MYSQL_URL}
@@ -16,7 +18,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-      #naming.physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      naming.physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
   mail:
     host: ${MAIL_SERVER_HOST}
     port: ${MAIL_SERVER_PORT}
@@ -28,6 +30,9 @@ spring:
           auth: true
           starttls:
             enabled: true
+          timeout: 30000
+          connectiontimeout: 50000
+          writetimeout: 50000
   thymeleaf:
     prefix: classpath:/email/template/
     suffix: .html
