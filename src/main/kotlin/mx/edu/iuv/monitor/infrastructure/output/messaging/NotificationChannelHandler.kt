@@ -70,7 +70,7 @@ class NotificationChannelHandler (
                 message.setFrom("coordinacion_tecnicopedagogica@iuv.edu.mx")
                 message.setRecipients(MimeMessage.RecipientType.TO, notification.recipient.email)
                 message.setRecipients(MimeMessage.RecipientType.CC, "coordinacion_tecnicopedagogica@iuv.edu.mx")
-                message.subject = "Notificacion IUV"
+                message.subject = "Notificación IUV"
 
                 val context = Context()
                 context.setVariable(USER_NAME_PLACEHOLDER, notification.recipient.firstName)
