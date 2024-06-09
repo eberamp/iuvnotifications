@@ -62,24 +62,23 @@ class NotificationChannelHandler (
 
     override fun notifyViaEmail(notifications: List<Notification>): NotificationResult {
 
-        return testNotifyViaEmail(notifications)
-
         val failedSendNotifications: MutableList<Notification> = mutableListOf()
-        val message = mailSender.createMimeMessage()
-        message.setFrom("coordinacion_tecnicopedagogica@iuv.edu.mx")
-        message.setRecipients(MimeMessage.RecipientType.CC, "coordinacion_tecnicopedagogica@iuv.edu.mx")
 
         notifications.forEach { notification ->
-            message.setRecipients(MimeMessage.RecipientType.TO, notification.recipient.email)
-
-            val context = Context()
-            context.setVariable(USER_NAME_PLACEHOLDER, notification.recipient.firstName)
-            context.setVariable(COURSE_NAME_PLACEHOLDER, notification.message)
-
-            val bodyHtmlMessage = getPersonalizedEmailTemplateForContext(context, notification.reason)
-            message.setContent(bodyHtmlMessage, "text/html; charset=utf-8")
-
+            val message = mailSender.createMimeMessage()
             try {
+                message.setFrom("coordinacion_tecnicopedagogica@iuv.edu.mx")
+                message.setRecipients(MimeMessage.RecipientType.TO, notification.recipient.email)
+                message.setRecipients(MimeMessage.RecipientType.CC, "coordinacion_tecnicopedagogica@iuv.edu.mx")
+                message.subject = "Notificacion IUV"
+
+                val context = Context()
+                context.setVariable(USER_NAME_PLACEHOLDER, notification.recipient.firstName)
+                context.setVariable(COURSE_NAME_PLACEHOLDER, notification.message)
+
+                val bodyHtmlMessage = getPersonalizedEmailTemplateForContext(context, notification.reason)
+                message.setContent(bodyHtmlMessage, "text/html; charset=utf-8")
+
                 mailSender.send(message)
             } catch (e: Exception){
                 // log notification with error
